@@ -330,14 +330,16 @@ while True:
         final_vol_L    = plate_factors[plate_name]["final_vol_L"]
 
         print(f"\n\033[0;35mDoublings per day questions\033[0m")
-        doublings_per_day = float(input(f"Enter doublings per day for {line_name} (enter 0 if unknown): ").strip())
-        if doublings_per_day == 0:
+        doublings = float(input(f"Enter doublings per day for {line_name} (enter 0 if unknown): ").strip())
+        if doublings == 0:
             final_count = float(input(f"Enter the final cell count for {line_name}: ").strip())
-            doublings_per_day = (np.log(final_count / initial_count) / np.log(2)) / (duration_hrs / 24.0)
+            doublings = (np.log(final_count / initial_count) / np.log(2)) / (duration_hrs / 24.0)
 
-        if doublings_per_day == 0:
+        if doublings == 0:
             print(f"⚠️ Doublings per day is zero for {line_name}, can't compute AUC. Skipping.")
             continue
+
+        doublings_per_day = doublings / 24
 
         # keep your original formula
         auc = (initial_count / (doublings_per_day * np.log(2))) * (2 ** (doublings_per_day * 24) - 1)
@@ -368,11 +370,9 @@ while True:
             delta_over_auc = delta_mol / auc if auc != 0 else np.nan
             metric = delta_over_auc * 1e12  # mol -> fmol
 
-            out_row[f"{chem}_initial_conc"] = init_conc
-            out_row[f"{chem}_final_conc"]   = final_conc
-            out_row[f"{chem}_initial_amount_mol"] = init_amt_mol
-            out_row[f"{chem}_final_amount_mol"]   = final_amt_mol
-            out_row[f"{chem}_metric_fmol_per_cell_hr"] = metric
+            out_row[f"{chem} initial amount"] = init_amt_mol
+            out_row[f"{chem} final amount"]   = final_amt_mol
+            out_row[f"{chem} fmol per cell hr"] = metric
 
             values_for_plot[chem][line_name] = metric
 
